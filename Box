@@ -1,0 +1,115 @@
+--==================================================
+-- WOOD CRATE (STABLE SPAWN) - DOORS ROOM 0
+--==================================================
+
+task.spawn(function()
+    local Players = game:GetService("Players")
+
+    -- 🔥 ITEM
+    local items = {
+        [1] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Junbbinopro/Golden-scanner/refs/heads/main/Scanner"))()',
+        [2] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Junbbinopro/Torch/refs/heads/main/Tool"))()',
+        [3] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/trungdepth-dot/Candle/refs/heads/main/Candle"))()',
+        [4] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/thelostw3r/Scripts/heads/main/PurpleFlashlight.lua"))()'
+    }
+
+    -- ❗ DÁN TEXTURE THÙNG GỖ Ở ĐÂY
+    local CRATE_TEXTURE = "rbxassetid://PUT_TEXTURE_ID_HERE"
+
+    -- 🎨 CÀI ĐẶT MÀU SẮC
+    local DARK_WOOD_COLOR = Color3.fromRGB(60, 40, 25)
+    local ACCENT_COLOR = Color3.fromRGB(30, 20, 10)
+    local GLOW_COLOR = Color3.fromRGB(255, 200, 100)
+
+    -- 🚀 TÌM PHÒNG 0 VÀ BÀN (TỐI ƯU ĐỂ CHẠY CHUNG VỚI SCRIPT KHÁC)
+    local rooms = workspace:FindFirstChild("CurrentRooms")
+    if not rooms then return end
+    
+    local room0 = rooms:FindFirstChild("0")
+    if not room0 then return end
+
+    local desks = {}
+    for _, v in pairs(room0:GetDescendants()) do
+        if v:IsA("BasePart") then
+            local n = v.Name:lower()
+            if n:find("desk") or n:find("table") then
+                table.insert(desks, v)
+            end
+        end
+    end
+    
+    if #desks == 0 then return end
+    local desk = desks[math.random(#desks)]
+
+    -- TẠO HỘP
+    local box = Instance.new("Part")
+    box.Name = "Crate_Custom" -- Đặt tên riêng để tránh trùng lặp
+    box.Size = Vector3.new(1.6, 1.6, 1.6)
+    box.Anchored = true
+    box.CanCollide = false
+    box.Material = Enum.Material.SmoothPlastic
+    box.Color = DARK_WOOD_COLOR
+    box.Parent = workspace
+
+    -- ✨ HIỆU ỨNG PHÁT SÁNG NHẸ
+    local light = Instance.new("PointLight")
+    light.Color = GLOW_COLOR
+    light.Brightness = 2
+    light.Range = 8
+    light.Shadows = true
+    light.Parent = box
+
+    -- DÁN TEXTURE, CHỮ X VÀ VIỀN
+    for _, face in ipairs(Enum.NormalId:GetEnumItems()) do
+        local tex = Instance.new("Texture")
+        tex.Texture = CRATE_TEXTURE
+        tex.Face = face
+        tex.StudsPerTileU = 1
+        tex.StudsPerTileV = 1
+        tex.Parent = box
+
+        local sgui = Instance.new("SurfaceGui")
+        sgui.Face = face
+        sgui.CanvasSize = Vector2.new(100, 100)
+        sgui.Parent = box
+
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, 0, 1, 0)
+        label.BackgroundTransparency = 1
+        label.Text = "X"
+        label.TextColor3 = ACCENT_COLOR
+        label.TextScaled = true
+        label.Font = Enum.Font.SourceSansBold
+        label.Parent = sgui
+    end
+
+    local selectionBox = Instance.new("SelectionBox")
+    selectionBox.Adornee = box
+    selectionBox.LineThickness = 0.04
+    selectionBox.Color3 = ACCENT_COLOR
+    selectionBox.Parent = box
+
+    -- ĐẶT HỘP TRÊN BÀN
+    local yOffset = (desk.Size.Y / 2) + (box.Size.Y / 2) + 0.05
+    box.CFrame = desk.CFrame * CFrame.new(0, yOffset, 0)
+
+    -- PROXIMITY PROMPT
+    local prompt = Instance.new("ProximityPrompt")
+    prompt.ActionText = "Mở thùng"
+    prompt.ObjectText = "Thùng Gỗ"
+    prompt.HoldDuration = 1
+    prompt.RequiresLineOfSight = false
+    prompt.MaxActivationDistance = 10
+    prompt.Style = Enum.ProximityPromptStyle.Custom
+    prompt.Parent = box
+
+    prompt.Triggered:Connect(function()
+        local pick = math.random(1, #items)
+        task.spawn(function()
+            loadstring(items[pick])()
+        end)
+        box:Destroy()
+    end)
+
+    print("✅ Thùng gỗ đã spawn an toàn (Isolated Run).")
+end)
