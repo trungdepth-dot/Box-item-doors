@@ -54,7 +54,7 @@ task.spawn(function()
     -- ✨ HIỆU ỨNG PHÁT SÁNG NHẸ
     local light = Instance.new("PointLight")
     light.Color = GLOW_COLOR
-    light.Brightness = 2
+    light.Brightness = 6
     light.Range = 8
     light.Shadows = true
     light.Parent = box
